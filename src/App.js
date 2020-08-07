@@ -1,27 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import InputWithLabel from './components/input-with-label';
 import List from './components/list';
 
-import stories from './data/stories';
-
-const useSemiPersistentState = (key, initialState) => {
-  const [value, setValue] = useState(
-    localStorage.getItem(key) || initialState
-  );
-
-  useEffect(() => {
-    localStorage.setItem(key, value);
-  }, [value, key]);
-
-  return [value, setValue];
-}
+import useSemiPersistentState from './hooks/use-semi-persistent-state';
+import initialStories from './data/stories';
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState(
     'search',
     'React'
   );
+
+  const [stories, setStories] = useState(initialStories);
+
+  const handleRemoveStory = (item) => {
+    const newStories = stories.filter((story) => (
+      item.objectID !== story.objectID
+    ));
+
+    setStories(newStories);
+  };
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -46,7 +45,10 @@ const App = () => {
 
       <hr />
 
-      <List list={searchedStories} />
+      <List
+        list={searchedStories}
+        onRemoveItem={handleRemoveStory}
+      />
     </div>
   );
 };
