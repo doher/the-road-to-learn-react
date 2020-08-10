@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import InputWithLabel from './components/input-with-label';
 import List from './components/list';
 
+import getAsyncStories from './services/get-async-stories';
 import useSemiPersistentState from './hooks/use-semi-persistent-state';
 import initialStories from './data/stories';
 
@@ -12,7 +13,13 @@ const App = () => {
     'React'
   );
 
-  const [stories, setStories] = useState(initialStories);
+  const [stories, setStories] = useState([]);
+
+  useEffect(() => {
+    getAsyncStories(initialStories).then((res) => {
+      setStories(res.data.stories);
+    })
+  }, []);
 
   const handleRemoveStory = (item) => {
     const newStories = stories.filter((story) => (
