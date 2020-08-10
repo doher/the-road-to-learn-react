@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 
 import InputWithLabel from './components/input-with-label';
 import List from './components/list';
@@ -14,23 +14,23 @@ const App = () => {
     'React'
   );
 
-  const [stories, dispatchStories] = useReducer(storiesReducer, []);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isError, setIsError] = useState(false);
+  const [stories, dispatchStories] = useReducer(
+    storiesReducer,
+    { data: [], isLoading: false, isError: false }
+  );
 
   useEffect(() => {
-    setIsLoading(true);
+    dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
     getAsyncStories(initialStories)
-      .then((res) => {
+      .then((result) => {
         dispatchStories({
-          type: 'SET_STORIES',
-          payload: res.data.stories,
+          type: 'STORIES_FETCH_SUCCESS',
+          payload: result.data.stories,
         });
-        setIsLoading(false);
       })
       .catch(() => {
-        setIsError(true);
+        dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
       });
   }, []);
 
@@ -45,7 +45,7 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
-  const searchedStories = stories.filter((story) => (
+  const searchedStories = stories.data.filter((story) => (
     story.title.toLowerCase().includes(searchTerm.toLowerCase())
   ));
 
@@ -64,17 +64,16 @@ const App = () => {
 
       <hr />
 
-      {isError && <p>Something went wrong</p>}
+      {stories.isError && <p>Something went wrong</p>}
 
-      {
-        isLoading
-          ? <p>Loading ...</p>
-          : (
-            <List
-              list={searchedStories}
-              onRemoveItem={handleRemoveStory}
-            />
-          )
+      {stories.isLoading
+        ? <p>Loading ...</p>
+        : (
+          <List
+            list={searchedStories}
+            onRemoveItem={handleRemoveStory}
+          />
+        )
       }
 
     </div>
