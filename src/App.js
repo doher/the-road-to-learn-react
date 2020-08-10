@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useReducer } from 'react';
 
 import InputWithLabel from './components/input-with-label';
 import List from './components/list';
 
 import getAsyncStories from './services/get-async-stories';
+import storiesReducer from './reducers/stories-reducer';
 import useSemiPersistentState from './hooks/use-semi-persistent-state';
 import initialStories from './data/stories';
 
@@ -13,7 +14,7 @@ const App = () => {
     'React'
   );
 
-  const [stories, setStories] = useState([]);
+  const [stories, dispatchStories] = useReducer(storiesReducer, []);
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
 
@@ -22,7 +23,10 @@ const App = () => {
 
     getAsyncStories(initialStories)
       .then((res) => {
-        setStories(res.data.stories);
+        dispatchStories({
+          type: 'SET_STORIES',
+          payload: res.data.stories,
+        });
         setIsLoading(false);
       })
       .catch(() => {
@@ -31,11 +35,10 @@ const App = () => {
   }, []);
 
   const handleRemoveStory = (item) => {
-    const newStories = stories.filter((story) => (
-      item.objectID !== story.objectID
-    ));
-
-    setStories(newStories);
+    dispatchStories({
+      type: 'REMOVE_STORY',
+      payload: item,
+    });
   };
 
   const handleSearch = (event) => {
