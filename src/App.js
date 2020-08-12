@@ -3,12 +3,9 @@ import React, { useEffect, useReducer } from 'react';
 import InputWithLabel from './components/input-with-label';
 import List from './components/list';
 
-// import getAsyncStories from './services/get-async-stories';
+import dataFetching from './services/dataFetching';
 import storiesReducer from './reducers/stories-reducer';
 import useSemiPersistentState from './hooks/use-semi-persistent-state';
-// import initialStories from './data/stories';
-
-const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
 
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState(
@@ -28,8 +25,7 @@ const App = () => {
 
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
-    fetch(`${API_ENDPOINT}${searchTerm}`)
-      .then((response) => (response.json()))
+    dataFetching(searchTerm)
       .then((result) => {
         dispatchStories({
           type: 'STORIES_FETCH_SUCCESS',
