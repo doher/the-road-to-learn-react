@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer, useCallback } from 'react';
 
 import InputWithLabel from './components/input-with-label';
 import List from './components/list';
@@ -18,7 +18,7 @@ const App = () => {
     { data: [], isLoading: false, isError: false }
   );
 
-  useEffect(() => {
+  const handleFetchStories = useCallback(() => {
     if (!searchTerm) {
       return;
     }
@@ -35,7 +35,11 @@ const App = () => {
       .catch(() => {
         dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
       });
-  }, [searchTerm]);
+  }, [searchTerm])
+
+  useEffect(() => {
+    handleFetchStories();
+  }, [handleFetchStories]);
 
   const handleRemoveStory = (item) => {
     dispatchStories({
