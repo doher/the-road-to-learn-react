@@ -1,4 +1,9 @@
-import React, { useEffect, useReducer, useCallback } from 'react';
+import React, {
+  useEffect,
+  useReducer,
+  useCallback,
+  useState
+} from 'react';
 
 import InputWithLabel from './components/input-with-label';
 import List from './components/list';
@@ -7,10 +12,16 @@ import dataFetching from './services/dataFetching';
 import storiesReducer from './reducers/stories-reducer';
 import useSemiPersistentState from './hooks/use-semi-persistent-state';
 
+const API_ENDPOINT = 'https://hn.algolia.com/api/v1/search?query=';
+
 const App = () => {
   const [searchTerm, setSearchTerm] = useSemiPersistentState(
     'search',
     'React'
+  );
+
+  const [url, setUrl] = useState(
+    `${API_ENDPOINT}${searchTerm}`
   );
 
   const [stories, dispatchStories] = useReducer(
@@ -19,13 +30,9 @@ const App = () => {
   );
 
   const handleFetchStories = useCallback(() => {
-    if (!searchTerm) {
-      return;
-    }
-
     dispatchStories({ type: 'STORIES_FETCH_INIT' });
 
-    dataFetching(searchTerm)
+    dataFetching(url)
       .then((result) => {
         dispatchStories({
           type: 'STORIES_FETCH_SUCCESS',
@@ -35,7 +42,7 @@ const App = () => {
       .catch(() => {
         dispatchStories({ type: 'STORIES_FETCH_FAILURE' });
       });
-  }, [searchTerm])
+  }, [url]);
 
   useEffect(() => {
     handleFetchStories();
@@ -48,8 +55,12 @@ const App = () => {
     });
   };
 
-  const handleSearch = (event) => {
+  const handleSearchInput = (event) => {
     setSearchTerm(event.target.value);
+  };
+
+  const handleSearchSubmit = () => {
+    setUrl(`${API_ENDPOINT}${searchTerm}`);
   };
 
   return (
@@ -60,10 +71,18 @@ const App = () => {
         id="search"
         value={searchTerm}
         isFocused
-        onInputChange={handleSearch}
+        onInputChange={handleSearchInput}
       >
         <strong>Search: </strong>
       </InputWithLabel>
+
+      <button
+        type="button"
+        disabled={!searchTerm}
+        onClick={handleSearchSubmit}
+      >
+        Submit
+      </button>
 
       <hr />
 
