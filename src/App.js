@@ -5,8 +5,8 @@ import React, {
   useState
 } from 'react';
 
-import InputWithLabel from './components/input-with-label';
 import List from './components/list';
+import SearchForm from './components/search-form'
 
 import dataFetching from './services/dataFetching';
 import storiesReducer from './reducers/stories-reducer';
@@ -59,7 +59,9 @@ const App = () => {
     setSearchTerm(event.target.value);
   };
 
-  const handleSearchSubmit = () => {
+  const handleSearchSubmit = (event) => {
+    event.preventDefault();
+
     setUrl(`${API_ENDPOINT}${searchTerm}`);
   };
 
@@ -67,22 +69,11 @@ const App = () => {
     <div>
       <h1>My Hacker Stories</h1>
 
-      <InputWithLabel
-        id="search"
-        value={searchTerm}
-        isFocused
-        onInputChange={handleSearchInput}
-      >
-        <strong>Search: </strong>
-      </InputWithLabel>
-
-      <button
-        type="button"
-        disabled={!searchTerm}
-        onClick={handleSearchSubmit}
-      >
-        Submit
-      </button>
+      <SearchForm
+        searchTerm={searchTerm}
+        handleSearchSubmit={handleSearchSubmit}
+        handleSearchInput={handleSearchInput}
+      />
 
       <hr />
 
